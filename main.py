@@ -11,7 +11,8 @@ Gestures
 
 Keys: space next word | backspace remove last word | x clear subtitle
       c clear board | u undo stroke | s save PNG | + / - brush size
-      f next filter | [ / ] brightness | 0 reset look | h hide hand skeleton | q quit
+      f next filter | [ / ] brightness | 0 reset look | h hide hand skeleton
+      w full screen on/off | q or Esc quit
 """
 import time
 
@@ -30,6 +31,8 @@ SMOOTHING = 0.6        # 0..1  higher = snappier, lower = smoother
 HOLD_SECONDS = 1.0     # open-palm hold time for "next word"
 ERASER_RADIUS = 30
 LANGUAGE = "en"        # handwriting language code
+FULLSCREEN = True      # start in full screen (press w to toggle)
+WIN = "Air Writing"
 
 
 def main():
@@ -39,6 +42,11 @@ def main():
         _, frame = cam.read()
         time.sleep(0.01)
     h, w = frame.shape[:2]
+
+    cv2.namedWindow(WIN, cv2.WINDOW_NORMAL)
+    fullscreen = FULLSCREEN
+    if fullscreen:
+        cv2.setWindowProperty(WIN, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     tracker = HandTracker()
     canvas = AirCanvas(w, h)
@@ -159,7 +167,11 @@ def main():
             fps, fps_n, fps_t = fps_n / (time.time() - fps_t), 0, time.time()
         info = f"{fps:.0f} FPS | {mode} | {ui.PALETTE[color_idx][0]}"
         ui.draw_ui(out, color_idx, filter_idx, brightness, words, rec.text, rec.status, info)
-        cv2.imshow("Air Writing", out)
+        try:
+            _, _, win_w, win_h = cv2.getWindowImageRect(WIN)
+        except cv2.error:
+            win_w = win_h = 0
+        cv2.imshow(WIN, ui.letterbox(out, win_w, win_h) if win_w > 0 and win_h > 0 else out)
 
         key = cv2.waitKey(1) & 0xFF
         if key in (ord("q"), 27):
@@ -192,6 +204,10 @@ def main():
             filter_idx, brightness = 0, 0
         elif key == ord("h"):
             show_skeleton = not show_skeleton
+        elif key == ord("w"):
+            fullscreen = not fullscreen
+            cv2.setWindowProperty(WIN, cv2.WND_PROP_FULLSCREEN,
+                                  cv2.WINDOW_FULLSCREEN if fullscreen else cv2.WINDOW_NORMAL)
 
     tracker.close()
     cam.release()

@@ -29,10 +29,9 @@ internet (it sends your pen strokes to Google's handwriting-input service).
 ## Keys
 space next word, backspace remove last word, x clear subtitle, c clear board,
 u undo stroke, s save PNG, +/- brush size, f next filter, [ / ] brightness,
-0 reset look, h hide hand skeleton, q quit.
+0 reset look, h hide hand skeleton, w full screen on/off, q or Esc quit.
 
 ## Files
 main.py (loop), ui.py (palette, filters, slider, subtitle), look.py (filters +
 brightness), camera.py (threaded fast webcam), hand_tracker.py, canvas.py
 (strokes, erase, undo), recognizer.py (live recognition thread)
-"# Air-Writing-version-3" 

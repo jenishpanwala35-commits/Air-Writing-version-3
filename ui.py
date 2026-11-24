@@ -124,3 +124,16 @@ def draw_ui(out, color_idx, filter_idx, brightness, words, live, status, info):
 
     size = cv2.getTextSize(info, sf, 0.5, 1)[0][0]
     cv2.putText(out, info, (w - size - 10, h - BAR_H + 20), sf, 0.5, (200, 200, 200), 1, cv2.LINE_AA)
+
+
+def letterbox(img, win_w, win_h):
+    """Scale img to fit a window of win_w x win_h, keeping aspect ratio (black bars)."""
+    import numpy as np
+    h, w = img.shape[:2]
+    scale = min(win_w / w, win_h / h)
+    nw, nh = max(int(w * scale), 1), max(int(h * scale), 1)
+    resized = cv2.resize(img, (nw, nh), interpolation=cv2.INTER_LINEAR)
+    canvas = np.zeros((win_h, win_w, 3), dtype=np.uint8)
+    y0, x0 = (win_h - nh) // 2, (win_w - nw) // 2
+    canvas[y0:y0 + nh, x0:x0 + nw] = resized
+    return canvas
